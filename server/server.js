@@ -68,32 +68,28 @@ app.post("/get-response", async (req, res) => {
       .trim();
     fs.writeFileSync("aislydes/slides.md", content);
     if (firstRequest) {
-      exec(
-        "npm install",
-        { cwd: "aislydes" },
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-          console.error(`stderr: ${stderr}`);
-          exec(
-            "npm i -D playwright-chromium",
-            { cwd: "aislydes" },
-            (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-              firstRequest = false;
-            }
-          );
+      exec("npm install", { cwd: "aislydes" }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
         }
-      );
-  }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        exec(
+          "npm i -D playwright-chromium",
+          { cwd: "aislydes" },
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`);
+              return;
+            }
+            console.log(`stdout: ${stdout}`);
+            console.error(`stderr: ${stderr}`);
+            firstRequest = false;
+          }
+        );
+      });
+    }
     exec("npm run export", { cwd: "aislydes" }, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -105,7 +101,7 @@ app.post("/get-response", async (req, res) => {
         requestId,
         message: "Prompt processed successfully",
         response: response.data,
-});
+      });
     });
   } catch (error) {
     activeRequests.set(requestId, { status: "failed", error: error.message });
@@ -128,21 +124,6 @@ app.get("/download-slides", (req, res) => {
     }
   });
 });
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
-  res.json(request);
-});
-
-app.get("/download-slides", (req, res) => {
-  const filePath = path.join(__dirname, "aislydes", "slides-export.pdf");
-  res.download(filePath, "slides-export.pdf", (err) => {
-    if (err) {
-      res.status(500).json({ error: "Failed to download file" });
-    }
-  });
-});
-
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
