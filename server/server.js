@@ -7,11 +7,14 @@ const fs = require("fs");
 const path = require("path");
 const app = express();
 const port = 3000;
+const firstRequest = true;
 
 const activeRequests = new Map();
-app.use(cors({
-  origin: "https://aks-aislides.netlify.app"
-}));
+app.use(
+  cors({
+    origin: "https://aks-aislides.netlify.app",
+  })
+);
 app.use(express.json());
 
 app.post("/get-response", async (req, res) => {
@@ -58,6 +61,22 @@ app.post("/get-response", async (req, res) => {
       .replace(/^```markdown|```$/g, "")
       .trim();
     fs.writeFileSync("aislydes/slides.md", content);
+
+    if (firstRequest) {
+      exec(
+        "npm i -D playwright-chromium",
+        { cwd: "aislydes" },
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+          firstRequest = false;
+        }
+      );
+    }
 
     exec("npm run export", { cwd: "aislydes" }, (error, stdout, stderr) => {
       if (error) {
