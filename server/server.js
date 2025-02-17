@@ -8,9 +8,7 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const firstRequest = true;
-
 const activeRequests = new Map();
-
 var whitelist = [
   "https://aks-aislides.netlify.app",
   "https://aks-aislides.netlify.app/",
@@ -25,14 +23,11 @@ var corsOptions = {
     }
   },
 };
-
 app.use(cors(corsOptions));
 app.use(express.json());
-
 app.post("/get-response", async (req, res) => {
   const { prompt } = req.body;
   const requestId = `request-${Date.now()}`;
-
   try {
     console.log(requestId);
     activeRequests.set(requestId, { status: "processing" });
@@ -62,21 +57,18 @@ app.post("/get-response", async (req, res) => {
         },
       }
     );
-
     activeRequests.set(requestId, {
       status: "completed",
       response: response.data,
     });
     console.log(response.data);
-
     const content = response.data.choices[0].message.content
       .replace(/^```markdown|```$/g, "")
       .trim();
     fs.writeFileSync("aislydes/slides.md", content);
-
     if (firstRequest) {
       exec(
-        "npm i -D playwright-chromium",
+        "npm install",
         { cwd: "aislydes" },
         (error, stdout, stderr) => {
           if (error) {
@@ -85,11 +77,22 @@ app.post("/get-response", async (req, res) => {
           }
           console.log(`stdout: ${stdout}`);
           console.error(`stderr: ${stderr}`);
-          firstRequest = false;
+          exec(
+            "npm i -D playwright-chromium",
+            { cwd: "aislydes" },
+            (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+              firstRequest = false;
+            }
+          );
         }
       );
-    }
-
+  }
     exec("npm run export", { cwd: "aislydes" }, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -101,22 +104,32 @@ app.post("/get-response", async (req, res) => {
         requestId,
         message: "Prompt processed successfully",
         response: response.data,
-      });
+});
     });
   } catch (error) {
     activeRequests.set(requestId, { status: "failed", error: error.message });
     res.status(500).json({ error: error.message });
   }
 });
-
 app.get("/response-status/:requestId", (req, res) => {
   const requestId = req.params.requestId;
   const request = activeRequests.get(requestId);
-
   if (!request) {
     return res.status(404).json({ error: "Request not found" });
   }
-
+  res.json(request);
+});
+app.get("/download-slides", (req, res) => {
+  const filePath = path.join(__dirname, "aislydes", "slides-export.pdf");
+  res.download(filePath, "slides-export.pdf", (err) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to download file" });
+    }
+  });
+});
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
   res.json(request);
 });
 
