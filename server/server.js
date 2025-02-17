@@ -14,7 +14,7 @@ const activeRequests = new Map();
 var whitelist = [
   "https://aks-aislides.netlify.app",
   "https://aks-aislides.netlify.app/",
-  "http://localhost:3000",
+  "http://localhost:5173",
 ];
 var corsOptions = {
   origin: function (origin, callback) {
