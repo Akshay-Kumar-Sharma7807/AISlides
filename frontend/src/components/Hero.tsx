@@ -16,7 +16,7 @@ export function Hero() {
     setError(null);
 
     try {
-      const response = await axios.post("http://localhost:3000/get-response", {
+      const response = await axios.post("http://aislides.onrender.com/get-response", {
         prompt,
         filePath,
         folder: "aislydes",
@@ -24,14 +24,14 @@ export function Hero() {
 
       const checkStatus = async () => {
         const statusResponse = await axios.get(
-          `http://localhost:3000/response-status/${response.data.requestId}`
+          `http://aislides.onrender.com/response-status/${response.data.requestId}`
         );
 
         if (statusResponse.data.status === "completed") {
           setSubmitted(true);
           setLoading(false);
           // Trigger download after successful request
-          window.location.href = "http://localhost:3000/download-slides";
+          window.location.href = "http://aislides.onrender.com/download-slides";
         } else if (statusResponse.data.status === "failed") {
           setError(statusResponse.data.error);
           setLoading(false);

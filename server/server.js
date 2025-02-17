@@ -9,7 +9,9 @@ const app = express();
 const port = 3000;
 
 const activeRequests = new Map();
-app.use(cors());
+app.use(cors({
+  origin: "https://aks-aislides.netlify.app"
+}));
 app.use(express.json());
 
 app.post("/get-response", async (req, res) => {
