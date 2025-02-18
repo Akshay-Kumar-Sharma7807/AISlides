@@ -16,22 +16,26 @@ export function Hero() {
     setError(null);
 
     try {
-      const response = await axios.post("https://aislides.onrender.com/get-response", {
-        prompt,
-        filePath,
-        folder: "aislydes",
-      });
+      const response = await axios.post(
+        "https://negative-paulette-hackath-3a134924.koyeb.app/get-response",
+        {
+          prompt,
+          filePath,
+          folder: "aislydes",
+        }
+      );
 
       const checkStatus = async () => {
         const statusResponse = await axios.get(
-          `https://aislides.onrender.com/response-status/${response.data.requestId}`
+          `https://negative-paulette-hackath-3a134924.koyeb.app/response-status/${response.data.requestId}`
         );
 
         if (statusResponse.data.status === "completed") {
           setSubmitted(true);
           setLoading(false);
           // Trigger download after successful request
-          window.location.href = "https://aislides.onrender.com/download-slides";
+          window.location.href =
+            "https://negative-paulette-hackath-3a134924.koyeb.app/download-slides";
         } else if (statusResponse.data.status === "failed") {
           setError(statusResponse.data.error);
           setLoading(false);
