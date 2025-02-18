@@ -7,7 +7,8 @@ const fs = require("fs");
 const path = require("path");
 const app = express();
 const port = 3000;
-const firstRequest = true;
+let firstRequest = true;
+
 const activeRequests = new Map();
 var whitelist = [
   "https://aks-aislides.netlify.app",
