@@ -121,7 +121,7 @@ app.get("/response-status/:requestId", (req, res) => {
   res.json(request);
 });
 app.get("/download-slides", (req, res) => {
-  const filePath = path.join(__dirname, "aislydes", "slides-export.pdf");
+  const filePath = path.join(__dirname, "aislydes", "slides-export.pptx");
   res.download(filePath, "slides-export.pdf", (err) => {
     if (err) {
       res.status(500).json({ error: "Failed to download file" });
