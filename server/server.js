@@ -68,45 +68,33 @@ app.post("/get-response", async (req, res) => {
       .replace(/^```markdown|```$/g, "")
       .trim();
     fs.writeFileSync("aislydes/slides.md", content);
-    if (firstRequest) {
-      console.log("First request");
-      exec("npm install", { cwd: "aislydes" }, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-
-        exec("npm run export", { cwd: "aislydes" }, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-          console.error(`stderr: ${stderr}`);
-          res.json({
-            requestId,
-            message: "Prompt processed successfully",
-            response: response.data,
-          });
-        });
-
-        // exec(
-        //   "npm i -D playwright-chromium",
-        //   { cwd: "aislydes" },
-        //   (error, stdout, stderr) => {
-        //     if (error) {
-        //       console.error(`exec error: ${error}`);
-        //       return;
-        //     }
-        //     console.log(`stdout: ${stdout}`);
-        //     console.error(`stderr: ${stderr}`);
-        //     firstRequest = false;
-        //   }
-        // );
+    exec("npm run export", { cwd: "aislydes" }, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      res.json({
+        requestId,
+        message: "Prompt processed successfully",
+        response: response.data,
       });
-    }
+    });
+
+    // exec(
+    //   "npm i -D playwright-chromium",
+    //   { cwd: "aislydes" },
+    //   (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`exec error: ${error}`);
+    //       return;
+    //     }
+    //     console.log(`stdout: ${stdout}`);
+    //     console.error(`stderr: ${stderr}`);
+    //     firstRequest = false;
+    //   }
+    // );
   } catch (error) {
     activeRequests.set(requestId, { status: "failed", error: error.message });
     res.status(500).json({ error: error.message });
